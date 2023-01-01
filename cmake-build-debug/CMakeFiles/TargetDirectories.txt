@@ -1,0 +1,3 @@
+/home/dragos/Projects/2DConvolution/cmake-build-debug/CMakeFiles/Convolution.dir
+/home/dragos/Projects/2DConvolution/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/dragos/Projects/2DConvolution/cmake-build-debug/CMakeFiles/rebuild_cache.dir
