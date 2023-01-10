@@ -26,11 +26,14 @@ int main(){
 
     divide_channels(img, imgR, imgG, imgB);
 
-    imshow("Red", imgR);
-    imshow("Green", imgG);
-    imshow("Blue", imgB);
-    imshow("Lena", img);
-    waitKey(0);
+//    imshow("Red", imgR);
+//    imshow("Green", imgG);
+//    imshow("Blue", imgB);
+//    imshow("Lena", img);
+//    waitKey(0);
+
+    Mat prova = convolution(imgR, imgG, imgB, kernel);
+
     return 0;
 
 }

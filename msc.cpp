@@ -6,7 +6,6 @@
 #include<opencv2/imgcodecs.hpp>
 #include<opencv2/highgui.hpp>
 
-
 using namespace cv;
 
 void MatType( Mat& inputMat ){
