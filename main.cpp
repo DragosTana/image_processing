@@ -20,19 +20,27 @@ int main(){
 
     MatType(img);
 
-    int kernel[3][3] = { 1/16, 2/16, 1/16,
-                         2/16, 4/16, 2/16,
-                         1/16, 2/16, 1/16 };
+    double kernel[3][3] = {{1, 2, 1},
+                           {2, 4, 2},
+                           {1, 2, 1}};
+
+    for(int i = 0; i < 3; i++){
+        for(int j = 0; j < 3; j ++){
+            kernel[i][j] = kernel[i][j]/16;
+        }
+    }
 
     divide_channels(img, imgR, imgG, imgB);
 
-//    imshow("Red", imgR);
 //    imshow("Green", imgG);
 //    imshow("Blue", imgB);
 //    imshow("Lena", img);
-//    waitKey(0);
 
-    Mat prova = convolution(imgR, imgG, imgB, kernel);
+    Mat imgR_blur(512, 512, CV_8SC3);
+    imgR_blur = convolution(imgR, imgG, imgB, kernel);
+    imshow("Red", imgR);
+    imshow("Red Blur",imgR_blur);
+    waitKey(0);
 
     return 0;
 

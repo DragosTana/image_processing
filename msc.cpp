@@ -41,5 +41,8 @@ void divide_channels(const Mat& img, Mat& imgR, Mat& imgG, Mat& imgB){
             imgR.at<Vec3b>(i,j)[2] = img.at<Vec3b>(i,j)[2];
         }
     }
+}
+
+void merge_channels(const Mat& img, Mat& imgR, Mat& imgG, Mat& imgB){
 
 }
