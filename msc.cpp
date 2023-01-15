@@ -43,6 +43,16 @@ void divide_channels(const Mat& img, Mat& imgR, Mat& imgG, Mat& imgB){
     }
 }
 
-void merge_channels(const Mat& img, Mat& imgR, Mat& imgG, Mat& imgB){
+Mat merge_channels (const Mat& imgR, const Mat& imgG, const Mat& imgB){
 
+    Mat img(512, 512, CV_8SC3);
+    for(int i = 0; i < img.rows; i++){
+        for(int j = 0; j < img.cols; j++){
+            //std::cout << img.at<Vec3b>(i,j)[0] << " " << img.at<Vec3b>(i,j)[1] << " " << img.at<Vec3b>(i,j)[2] << std::endl;
+            img.at<Vec3b>(i,j)[0] = imgB.at<Vec3b>(i,j)[0];
+            img.at<Vec3b>(i,j)[1] = imgG.at<Vec3b>(i,j)[1];
+            img.at<Vec3b>(i,j)[2] = imgR.at<Vec3b>(i,j)[2];
+        }
+    }
+    return(img);
 }

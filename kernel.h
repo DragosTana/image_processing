@@ -5,7 +5,7 @@
 #ifndef CONVOLUTION_KERNEL_H
 #define CONVOLUTION_KERNEL_H
 
-struct Kernel
+
 
 
 #endif //CONVOLUTION_KERNEL_H

@@ -3,20 +3,6 @@
 //
 #include "msc.cpp"
 
-int matrix_multiplication(const double kernel[3][3], Mat& channel, int& x, int& y){
-    //Input are the kernel, the channel and the coordinates of the point on which we perform the convolution.
-    int value = 0;
-    for(int i = 0; i < 3; i++){
-        for(int j = 0; j < 3; j ++){
-            value += (kernel[i][j])*int(channel.at<uchar>(x-1+j, y-1+i));
-//            std::cout<<kernel[i][j]<<" "<< int(channel.at<uchar>(x-1+j, y-1+i))<<std::endl;
-//            std::cout<<value<<std::endl;
-        }
-    }
-//    std::cout<<"next pixel"<<std::endl;
-    return(value);
-}
-
 void print_kernel(double kernel[3][3]){
     for(int i = 0; i < 3; i++){
         for(int j = 0; j < 3; j ++){
@@ -25,20 +11,27 @@ void print_kernel(double kernel[3][3]){
     }
 }
 
-Mat convolution(Mat& redChannel, Mat& greenChannel, Mat& blueChannel, const double kernel[3][3]){
-    Mat imgR(512,512, CV_8UC3);
-    Mat imgG(512,512, CV_8UC3);
-    Mat imgB(512,512, CV_8UC3);
+Mat convolutionV1(Mat& img, Mat my_kernel, Mat img_conv){
 
-    int row = 512;
-    int cols = 512;
-    int count = 0;
-    for(int i = 1; i < row-1; i++){
-        for(int j = 1; j < cols - 1; j++){
-            imgR.at<uchar>(i, j) = char(matrix_multiplication(kernel, redChannel, i, j));
-            //std::cout<< matrix_multiplication(kernel, redChannel, i, j);
+    //Performing the convolution
+    Mat my_conv = Mat(img.rows, img.cols, CV_64FC3, CV_RGB(0,0,0));
+    for (int x=(my_kernel.rows-1)/2; x<img_conv.rows-((my_kernel.rows-1)/2); x++) {
+        for (int y=(my_kernel.cols-1)/2; y<img_conv.cols-((my_kernel.cols-1)/2); y++) {
+            double comp_1=0;
+            double comp_2=0;
+            double comp_3=0;
+            for (int u=-(my_kernel.rows-1)/2; u<=(my_kernel.rows-1)/2; u++) {
+                for (int v=-(my_kernel.cols-1)/2; v<=(my_kernel.cols-1)/2; v++) {
+                    comp_1 = comp_1 + ( img_conv.at<Vec3d>(x+u,y+v)[0] * my_kernel.at<double>(u + ((my_kernel.rows-1)/2) ,v + ((my_kernel.cols-1)/2)));
+                    comp_2 = comp_2 + ( img_conv.at<Vec3d>(x+u,y+v)[1] * my_kernel.at<double>(u + ((my_kernel.rows-1)/2),v + ((my_kernel.cols-1)/2)));
+                    comp_3 = comp_3 + ( img_conv.at<Vec3d>(x+u,y+v)[2] * my_kernel.at<double>(u +  ((my_kernel.rows-1)/2),v + ((my_kernel.cols-1)/2)));
+                }
+            }
+            my_conv.at<Vec3d>(x-((my_kernel.rows-1)/2),y-(my_kernel.cols-1)/2)[0] = comp_1;
+            my_conv.at<Vec3d>(x-((my_kernel.rows-1)/2),y-(my_kernel.cols-1)/2)[1] = comp_2;
+            my_conv.at<Vec3d>(x-((my_kernel.rows-1)/2),y-(my_kernel.cols-1)/2)[2] = comp_3;
         }
     }
-    std::cout<<count;
-    return imgR;
 }
+
+
