@@ -56,3 +56,5 @@ Mat merge_channels (const Mat& imgR, const Mat& imgG, const Mat& imgB){
     }
     return(img);
 }
+
+Mat

@@ -11,10 +11,8 @@ void print_kernel(double kernel[3][3]){
     }
 }
 
-Mat convolutionV1(Mat& img, Mat my_kernel, Mat img_conv){
-
+void convolution(Mat& img_conv, Mat& my_kernel, Mat& my_conv){
     //Performing the convolution
-    Mat my_conv = Mat(img.rows, img.cols, CV_64FC3, CV_RGB(0,0,0));
     for (int x=(my_kernel.rows-1)/2; x<img_conv.rows-((my_kernel.rows-1)/2); x++) {
         for (int y=(my_kernel.cols-1)/2; y<img_conv.cols-((my_kernel.cols-1)/2); y++) {
             double comp_1=0;
@@ -32,6 +30,7 @@ Mat convolutionV1(Mat& img, Mat my_kernel, Mat img_conv){
             my_conv.at<Vec3d>(x-((my_kernel.rows-1)/2),y-(my_kernel.cols-1)/2)[2] = comp_3;
         }
     }
+
 }
 
 
