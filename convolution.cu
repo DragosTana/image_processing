@@ -36,19 +36,6 @@ uint64_t nanos(){
     return (uint64_t)ts.tv_sec*1000000000 + ts.tv_nsec;
 }
 
-__global__ void dumb_device_convolution(const uchar *img, const float *ker, uchar *out, const int H, const int W){
-
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    int j = blockIdx.y * blockDim.y + threadIdx.y;
-    int ker_r = KER/2;
-    if((i < W-ker_r && j < H-ker_r) && (i >= ker_r && j >= ker_r)){
-        for(int k = 0; k < KER; k++){
-            for(int l = 0; l < KER; l++){
-                out[i*W+j] += (uchar)img[(i-ker_r+k)*W+(j-ker_r+l)]*ker[k*KER+l];
-            }
-        }
-    }
-}
 
 __global__ void smart_device_convolution(uchar *InputImageData, uchar *outputImageData, int width, int height)
 {
@@ -92,3 +79,18 @@ __global__ void smart_device_convolution(uchar *InputImageData, uchar *outputIma
     
 }
 
+cv::Mat device_convolution(const cv::Mat &image, const float kernel_h[KER*KER]){
+    cv::Mat output(image.rows, image.cols, CV_8UC1, cv::Scalar(0));
+    uchar *d_input, *d_output;
+    cudaMalloc(&d_input, image.rows*image.cols*sizeof(uchar));
+    cudaMalloc(&d_output, image.rows*image.cols*sizeof(uchar));
+    cudaMemcpy(d_input, image.data, image.rows*image.cols*sizeof(uchar), cudaMemcpyHostToDevice);
+    cudaMemcpyToSymbol(kernel, kernel_h, KER*KER*sizeof(float));
+    dim3 dimGrid(ceil(image.cols/(float)TILE_WIDTH), ceil(image.rows/(float)TILE_WIDTH), 1);
+    dim3 dimBlock(TILE_WIDTH, TILE_WIDTH, 1);
+    smart_device_convolution<<<dimGrid, dimBlock>>>(d_input, d_output, image.cols, image.rows);
+    cudaMemcpy(output.data, d_output, image.rows*image.cols*sizeof(uchar), cudaMemcpyDeviceToHost);
+    cudaFree(d_input);
+    cudaFree(d_output);
+    return output;
+}
