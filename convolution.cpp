@@ -13,3 +13,9 @@ void host_convolution(const uchar *M, const float *K, uchar *out, const int H, c
             }
         }
 }
+
+cv::Mat convolution(const cv::Mat &M, const cv::Mat &K){
+    cv::Mat out(M.rows, M.cols, CV_8UC1, cv::Scalar(0));
+    host_convolution(M.data, K.data, out.data, M.rows, M.cols);
+    return out;
+}
