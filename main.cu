@@ -23,7 +23,7 @@ int main(){
     std::cout << "FLOP: " << FLOP << std::endl;
     cv::Mat out_1 = device_convolution(img, kernel_h);
     cv::Mat out_2 = convolution(img, kernel_h);
-    cv::Mat out_3 = host_omp_convolution(img, kernel_h);
+    cv::Mat out_3 = host_omp_convolution(img, kernel_h, 16);
 
     //cv::imshow("Original", img);
     //cv::imshow("convolution_device", out_1);

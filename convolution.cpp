@@ -1,7 +1,14 @@
 #include "utils.cpp"
 
+/*
+Naive convolution implementation
+@param M: input matrix
+@param K: kernel
+@param out: output matrix
+@param H: height of input matrix
+@param W: width of input matrix
+*/
 void host_convolution(const uchar *M, const float *K, uchar *out, const int H, const int W){   
-
     int ker_r = KER/2;
     for(int i = 0; i < W; i++){
         for(int j = 0; j < H; j++){
@@ -14,6 +21,11 @@ void host_convolution(const uchar *M, const float *K, uchar *out, const int H, c
         }
 }
 
+/*
+Wrapper for host convolution
+@param M: input matrix as cv::Mat object
+@param kernel_h: kernel as float array
+*/
 cv::Mat convolution(const cv::Mat &M, const float kernel_h[KER*KER]){
     
     uint64_t start = nanos();
