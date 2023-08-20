@@ -3,6 +3,7 @@
 #include <opencv2/highgui.hpp>
 #include <string>
 
+//used only for testing
 #define N 512
 #define FLOP N*N*KER*KER*(KER-1)
 
@@ -10,8 +11,9 @@
 #include "convolution.cpp"
 #include "omp_convolution.cpp"
 
-
+// Compile with:
 // nvcc main.cu -I /usr/local/include/opencv4/ -L /usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lgomp -o main -O2 -Xcompiler -fopenmp
+
 int main(int argc, const char *argv[]){
     
     std::string file_name = argv[1];

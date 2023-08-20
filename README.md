@@ -28,7 +28,7 @@ To run use `./convolution <image_path> <kernel_type> <algorithm>`
 - `<kernel_typ>` can be: _blur_
 - `<algorithm>`  can be: _cuda_, _seq_, _omp_
 
-Replace input_image.jpg with the path to your input image. For example:
+For example:
 
 `./convolution images/lenna_gray_512.jpg blur cuda`
 

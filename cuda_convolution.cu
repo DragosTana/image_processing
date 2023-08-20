@@ -8,17 +8,17 @@
 #define TILE_WIDTH 32
 #define w_gauss (TILE_WIDTH + KER - 1)
 
-__constant__ float kernel[KER*KER];
+__constant__ float ker[KER*KER];
 
 /*
-Cuda implementation of convolution
-@param InputImageData: input image
+Cuda implementation of 2D convolution using constant memory and shared memory
+@param image: input image
 @param outputImageData: output image
 @param width: image width
 @param height: image height
 */
-__global__ void smart_device_convolution (uchar *InputImageData, uchar *outputImageData, int width, int height) {
-    __shared__ uint8_t N_ds[w_gauss][w_gauss];
+__global__ void smart_device_convolution (uchar *image, uchar *out, int width, int height) {
+    __shared__ float N_ds[w_gauss][w_gauss];
     int maskRadius = KER / 2;
     
     int dest = threadIdx.y * TILE_WIDTH + threadIdx.x;
@@ -27,7 +27,7 @@ __global__ void smart_device_convolution (uchar *InputImageData, uchar *outputIm
     int srcY = blockIdx.y * TILE_WIDTH + destY - maskRadius;
     int srcX = blockIdx.x * TILE_WIDTH + destX - maskRadius;
     if (srcY >= 0 && srcY < height && srcX >= 0 && srcX < width)
-        N_ds[destY][destX] = InputImageData[(srcY * width + srcX)];
+        N_ds[destY][destX] = image[(srcY * width + srcX)];
     else
         N_ds[destY][destX] = 0;
         dest = threadIdx.y * TILE_WIDTH + threadIdx.x + TILE_WIDTH * TILE_WIDTH;
@@ -38,7 +38,7 @@ __global__ void smart_device_convolution (uchar *InputImageData, uchar *outputIm
     if (destY < w_gauss)
     {
         if (srcY >= 0 && srcY < height && srcX >= 0 && srcX < width)
-            N_ds[destY][destX] = InputImageData[(srcY * width + srcX)];
+            N_ds[destY][destX] = image[(srcY * width + srcX)];
         else
             N_ds[destY][destX] = 0;
     }
@@ -48,11 +48,11 @@ __global__ void smart_device_convolution (uchar *InputImageData, uchar *outputIm
     int y, x;
     for (y = 0; y < KER; y++)
         for (x = 0; x < KER; x++)
-            accum += (uchar)N_ds[threadIdx.y + y][threadIdx.x + x] * kernel[y * KER + x];
+            accum += (uchar)(N_ds[threadIdx.y + y][threadIdx.x + x] * ker[y * KER + x]);
             y = blockIdx.y * TILE_WIDTH + threadIdx.y;
             x = blockIdx.x * TILE_WIDTH + threadIdx.x;
     if (y < height && x < width)
-        outputImageData[(y * width + x)] = accum;
+        out[(y * width + x)] = accum;
     __syncthreads();
 }
 
@@ -71,7 +71,7 @@ cv::Mat device_convolution (const cv::Mat& image, const float kernel_h[KER*KER])
     uint64_t start = nanos();
     cv::Mat output(image.rows, image.cols, CV_8UC1, cv::Scalar(0));
     cudaMemcpy(d_input, image.data, image.rows*image.cols*sizeof(uchar), cudaMemcpyHostToDevice);
-    cudaMemcpyToSymbol(kernel, kernel_h, KER*KER*sizeof(float));
+    cudaMemcpyToSymbol(ker, kernel_h, KER*KER*sizeof(float));
     dim3 dimGrid(ceil(image.cols/(float)TILE_WIDTH), ceil(image.rows/(float)TILE_WIDTH), 1);
     dim3 dimBlock(TILE_WIDTH, TILE_WIDTH, 1);
     smart_device_convolution<<<dimGrid, dimBlock>>>(d_input, d_output, image.cols, image.rows);
