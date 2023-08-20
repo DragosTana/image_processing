@@ -2,7 +2,7 @@
 #include "omp.h"
 
 /*
-OpenMP convolution
+Naive OpenMP convolution. The outermost loop is parallelized using a simple #pragma omp parallel for directive.
 @param M: input matrix
 @param K: kernel
 @param out: output matrix
@@ -26,7 +26,7 @@ void omp_convolution (const uchar *M, const float *K, uchar *out, const int H, c
 }
 
 /*
-Smart OpenMP convolution
+Smarter OpenMP convolution. Every core has a private output matrix, which is then merged into the global output matrix.
 @param M: input matrix
 @param K: kernel
 @param out: output matrix
@@ -38,7 +38,6 @@ void smart_omp_convolution (const uchar *M, const float *K, uchar *out, const in
     
     int ker_r = KER/2;
     int chunk = ceil(H/(float)threads);
-    //std::cout << "chunk: " << chunk << std::endl;
     uchar private_out[W * H/threads];
 
     #pragma omp parallel num_threads(threads) shared(M, K, out, ker_r) private(private_out)
@@ -46,7 +45,6 @@ void smart_omp_convolution (const uchar *M, const float *K, uchar *out, const in
         #pragma omp for schedule(static, chunk) 
         for (int i = 0; i < H; i++) {
             for (int j = 0; j < W;  j++) {
-                //if (omp_get_thread_num() == 1) { std::cout << "i, j: " << i << ", " << j << std::endl;}
                 for (int k = 0; k < KER; k++) {
                     for (int l = 0; l < KER; l++) {
                         if (i >= ker_r && i < H - ker_r && j >= ker_r && j < W - ker_r){

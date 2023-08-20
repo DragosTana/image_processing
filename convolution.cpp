@@ -26,7 +26,7 @@ Wrapper for host convolution
 @param M: input matrix as cv::Mat object
 @param kernel_h: kernel as float array
 */
-cv::Mat convolution(const cv::Mat &M, const float kernel_h[KER*KER]){
+cv::Mat seq_convolution(const cv::Mat &M, const float kernel_h[KER*KER]){
     
     uint64_t start = nanos();
     cv::Mat out(M.rows, M.cols, CV_8UC1);

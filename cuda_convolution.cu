@@ -17,10 +17,8 @@ Cuda implementation of convolution
 @param width: image width
 @param height: image height
 */
-__global__ void smart_device_convolution(uchar *InputImageData, uchar *outputImageData, int width, int height)
-{
+__global__ void smart_device_convolution (uchar *InputImageData, uchar *outputImageData, int width, int height) {
     __shared__ uint8_t N_ds[w_gauss][w_gauss];
-
     int maskRadius = KER / 2;
     
     int dest = threadIdx.y * TILE_WIDTH + threadIdx.x;
@@ -63,7 +61,7 @@ Wrapper for device convolution
 @param image: input image as cv::Mat object
 @param kernel_h: kernel
 */
-cv::Mat device_convolution(const cv::Mat& image, const float kernel_h[KER*KER]){
+cv::Mat device_convolution (const cv::Mat& image, const float kernel_h[KER*KER]) {
     
     uchar *d_input, *d_output;
 
