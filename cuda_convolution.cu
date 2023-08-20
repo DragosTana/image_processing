@@ -5,7 +5,7 @@
 
 #include "utils.cpp"
 
-#define TILE_WIDTH 64
+#define TILE_WIDTH 32
 #define w_gauss (TILE_WIDTH + KER - 1)
 
 __constant__ float kernel[KER*KER];
@@ -77,6 +77,7 @@ cv::Mat device_convolution(const cv::Mat& image, const float kernel_h[KER*KER]){
     dim3 dimGrid(ceil(image.cols/(float)TILE_WIDTH), ceil(image.rows/(float)TILE_WIDTH), 1);
     dim3 dimBlock(TILE_WIDTH, TILE_WIDTH, 1);
     smart_device_convolution<<<dimGrid, dimBlock>>>(d_input, d_output, image.cols, image.rows);
+    cudaDeviceSynchronize();
     cudaMemcpy(output.data, d_output, image.rows*image.cols*sizeof(uchar), cudaMemcpyDeviceToHost);
     uint64_t end = nanos();
     std::cout << "GFLOPS device: " << FLOP / (float)(end-start)<< " time: "<< (end-start)*1e-3 <<std::endl;
