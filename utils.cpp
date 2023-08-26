@@ -1,6 +1,7 @@
 #pragma once
 
 #include <time.h>
+#include <omp.h>
 
 #define KER 3
 

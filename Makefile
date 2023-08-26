@@ -1,7 +1,7 @@
 # Makefile for compiling CUDA program with OpenCV and OpenMP
 # Compiler setup
 NVCC = nvcc
-CXXFLAGS = -O2 -Xcompiler -fopenmp
+CXXFLAGS =  -Xcompiler -fopenmp -Xcompiler -march=x86-64-v3 -std=c++11
 LIBS = -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lgomp
 # Directories
 INCLUDE_DIRS = -I/usr/local/include/opencv4/

@@ -10,10 +10,11 @@ Naive OpenMP convolution. The outermost loop is parallelized using a simple #pra
 @param W: width of input matrix
 @param threads: number of threads
 */
-void omp_convolution (const uchar *image, const float *ker, uchar *out, const int H, const int W, const int threads) {   
+void omp_convolution (const uchar *image, const float *ker, uchar *out, const int H, const int W) {   
 
     int ker_r = KER/2;
-    #pragma omp parallel for num_threads(threads) 
+    int chunk = ceil(H / (float) omp_get_max_threads());
+    #pragma omp parallel for num_threads(omp_get_max_threads()) shared(image, ker, out, ker_r) , schedule(static, chunk)
     for(int i = ker_r; i < W - ker_r; i++){
         for(int j = ker_r; j < H - ker_r; j++){
             for(int k = 0; k < KER; k++){
@@ -34,41 +35,41 @@ Smarter OpenMP convolution. Every core has a private output matrix, which is the
 @param W: width of input matrix
 @param threads: number of threads
 */
-void smart_omp_convolution (const uchar *image, const float *ker, uchar *out, const int H, const int W, const int threads) {  
-    
-    int ker_r = KER/2;
-    int chunk = ceil(H/(float)threads);
-    uchar private_out[W * H/threads];
+void smart_omp_convolution(const uchar *image, const float *ker, uchar *out, const int H, const int W) {
+    int ker_r = KER / 2;
+    int chunk = ceil(H / (float) omp_get_max_threads());
 
-    #pragma omp parallel num_threads(threads) shared(image, ker, out, ker_r) private(private_out)
-    {   
-        #pragma omp for schedule(static, chunk) 
-        for (int i = 0; i < H; i++) {
-            for (int j = 0; j < W;  j++) {
+    #pragma omp parallel num_threads(omp_get_max_threads()) shared(image, ker, out, ker_r, chunk)
+    {
+        int start_row = omp_get_thread_num() * chunk;
+        int end_row = (omp_get_thread_num() == omp_get_max_threads() - 1) ? H : start_row + chunk;
+        
+        uchar *private_out = new uchar[W * chunk]();
+
+        for (int i = start_row; i < end_row; i++) {
+            for (int j = 0; j < W; j++) {
                 for (int k = 0; k < KER; k++) {
                     for (int l = 0; l < KER; l++) {
-                        if (i >= ker_r && i < H - ker_r && j >= ker_r && j < W - ker_r){
-                            private_out[(i - omp_get_thread_num()*chunk)*W + j] += (uchar)image[(i-ker_r+k)*W+(j-ker_r+l)]*ker[k*KER+l];
-                        }                    
-                        else {
-                            private_out[(i - omp_get_thread_num()*chunk)*W + j] = image[i*W+j];
+                        if (i >= ker_r && i < H - ker_r && j >= ker_r && j < W - ker_r) {
+                            private_out[(i - start_row) * W + j] += (uchar) image[(i - ker_r + k) * W + (j - ker_r + l)] * ker[k * KER + l];
+                        } else {
+                            private_out[(i - start_row) * W + j] = image[i * W + j];
                         }
                     }
                 }
             }
         }
 
-        #pragma omp critical
-        {
-            //std::cout << "thread after: " << omp_get_thread_num() << std::endl;
-            for (int i = 0; i < chunk; i++) {
+            for (int i = start_row; i < end_row; i++) {
                 for (int j = 0; j < W; j++) {
-                    out[(i + omp_get_thread_num()*chunk)*W + j] = private_out[i*W+j];
+                    out[i * W + j] = private_out[(i - start_row) * W + j];
                 }
-            }
-        }
+            }  
+
+    delete[] private_out;
     }
 }
+
 
 /*
 Wrapper for OpenMP convolution
@@ -76,12 +77,12 @@ Wrapper for OpenMP convolution
 @param kernel_h: kernel
 @param threads: number of threads 
 */
-cv::Mat host_omp_convolution (const cv::Mat &image, const float kernel_h[KER*KER], const int threads) {
+cv::Mat host_omp_convolution (const cv::Mat &image, const float kernel_h[KER*KER]) {
     
-    uint64_t start = nanos();
+    double start = omp_get_wtime();
     cv::Mat out(image.rows, image.cols, CV_8UC1);
-    omp_convolution(image.data, kernel_h, out.data, image.rows, image.cols, threads);
-    uint64_t end = nanos();
-    std::cout << "GFLOPS  omp: " << FLOP / (float)(end-start)<< " time: "<< (end-start)*1e-3 <<std::endl;
+    omp_convolution(image.data, kernel_h, out.data, image.rows, image.cols);
+    double end = omp_get_wtime();
+    std::cout <<(end-start)<<std::endl;
     return out;
 }
