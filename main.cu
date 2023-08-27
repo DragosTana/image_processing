@@ -6,10 +6,9 @@
 #include "cuda_convolution.cu"
 #include "convolution.cpp"
 #include "omp_convolution.cpp"
-#include "simd_convolution.cpp"
 
 // Compile with:
-// nvcc main.cu -I /usr/local/include/opencv4/ -L /usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lgomp -o main -O2 -Xcompiler -fopenmp
+// nvcc main.cu -I /usr/local/include/opencv4/ -L /usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lgomp -o main  -Xcompiler -fopenmp
 
 #define TEST 1
 
@@ -30,29 +29,23 @@ int release(int argc, const char *argv[]){
         std::cout << "Invalid kernel" << std::endl;
         return 1;
     }
-    if (algorithm == "cuda") {
-        cv::Mat out = cuda_convolution(img, kernel_h);
-        //cv::imshow("Original", img);
-        //cv::imshow("Convolution", out);
-        //cv::waitKey(0);
-    }
-    else if (algorithm == "seq") {
+    if (algorithm == "seq") {
         cv::Mat out = seq_convolution(img, kernel_h);
-        //cv::imshow("Original", img);
-        //cv::imshow("Convolution", out);
-        //cv::waitKey(0);
-    }
+        cv::imshow("Original", img);
+        cv::imshow("Convolution", out);
+        cv::waitKey(0);
+    }  
     else if (algorithm == "omp") {
-        cv::Mat out = host_omp_convolution(img, kernel_h);
+        cv::Mat out = omp_convolution(img, kernel_h);
         cv::imshow("Original", img);
         cv::imshow("Convolution", out);
         cv::waitKey(0);
     }
-    else if (algorithm == "simd") {
-        cv::Mat out = vec_convolution(img, kernel_h);
-        //cv::imshow("Original", img);
-        //cv::imshow("Convolution", out);
-        //cv::waitKey(0);
+    else if (algorithm == "cuda") {
+        cv::Mat out = cuda_convolution(img, kernel_h);
+        cv::imshow("Original", img);
+        cv::imshow("Convolution", out);
+        cv::waitKey(0);
     }
     else {
         std::cout << "Invalid algorithm" << std::endl;
@@ -82,10 +75,7 @@ int test(int argc, const char *argv[]){
         cv::Mat out = seq_convolution(img, kernel_h);
     }
     else if (algorithm == "omp") {
-        cv::Mat out = host_omp_convolution(img, kernel_h);
-    }
-    else if (algorithm == "simd") {
-        cv::Mat out = vec_convolution(img, kernel_h);
+        cv::Mat out = omp_convolution(img, kernel_h);
     }
     else {
         std::cout << "Invalid algorithm" << std::endl;

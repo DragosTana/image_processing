@@ -1,20 +1,17 @@
 import subprocess
 import numpy as np
 import matplotlib.pyplot as plt
-import os
-import sys
-import time
 
 output = []
 result = []
 
 executable_path = "./convolution"
-dimension = "1024"
+dimension = "512"
 kernel = "blur"
-algorithm = ["seq", "omp", "cuda"]
+algorithm = ["seq", "omp"]
 
 for algo in algorithm:
-    for i in range(20):
+    for i in range(50):
     
         args = [executable_path, dimension, kernel, algo]
         completed_process = subprocess.run(args, stdout=subprocess.PIPE, text=True)
@@ -25,5 +22,6 @@ for algo in algorithm:
 
 speedup = result[0] / result
 
-print("Speedup: ", speedup)
+plt.bar(algorithm, speedup)
+plt.show()
 
