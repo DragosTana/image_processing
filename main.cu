@@ -1,5 +1,6 @@
 #include <opencv2/core.hpp>      
 #include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include <string>
 
@@ -47,6 +48,16 @@ int release(int argc, const char *argv[]){
         cv::imshow("Convolution", out);
         cv::waitKey(0);
     }
+    else if (algorithm == "opencv") {
+        cv::Mat out;
+        double start = omp_get_wtime();
+        cv::filter2D(img, out, -1, cv::Mat(KER, KER, CV_32F, kernel_h));
+        double end = omp_get_wtime();
+        std::cout << end - start << std::endl;
+        cv::imshow("Original", img);
+        cv::imshow("Convolution", out);
+        cv::waitKey(0);
+    }
     else {
         std::cout << "Invalid algorithm" << std::endl;
         return 1;
@@ -60,7 +71,7 @@ int test(int argc, const char *argv[]){
     std::string algorithm = argv[3];
     cv::Mat img = cv::Mat(N, N, CV_8UC1);
     cv::randu(img, cv::Scalar(0), cv::Scalar(255));
-    float kernel_h[KER*KER];
+    float kernel_h[KER*KER] __attribute__ ((aligned (32)));
     if (kernel == "blur") {
         gaussian_kernel(kernel_h, 1);
     }
@@ -76,6 +87,13 @@ int test(int argc, const char *argv[]){
     }
     else if (algorithm == "omp") {
         cv::Mat out = omp_convolution(img, kernel_h);
+    }
+    else if (algorithm == "opencv") {
+        cv::Mat out;
+        double start = omp_get_wtime();
+        cv::filter2D(img, out, -1, cv::Mat(KER, KER, CV_32F, kernel_h));
+        double end = omp_get_wtime();
+        std::cout << end - start << std::endl;
     }
     else {
         std::cout << "Invalid algorithm" << std::endl;

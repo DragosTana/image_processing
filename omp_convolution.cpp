@@ -15,14 +15,16 @@ void naive_omp_convolution (const uchar *image, const float *ker, uchar *out, co
     int ker_r = KER/2;
     int thread_num = omp_get_max_threads();
     int chunk = ceil(H / (float) thread_num);
-    #pragma omp parallel for num_threads(thread_num) shared(image, ker, out, ker_r) , schedule(static, chunk)
+    #pragma omp parallel for num_threads(thread_num) shared(image, ker, out, ker_r), schedule(static, chunk)
     for(int i = ker_r; i < W - ker_r; i++){
         for(int j = ker_r; j < H - ker_r; j++){
+            float temp = 0;
             for(int k = 0; k < KER; k++){
                 for(int l = 0; l < KER; l++){
-                    out[i*W+j] += (uchar)image[(i-ker_r+k)*W+(j-ker_r+l)]*ker[k*KER+l];
+                    temp += image[(i-ker_r+k)*W+(j-ker_r+l)]*ker[k*KER+l];
                 }
             }
+            out[i*W+j] = (uchar)temp;
             }
         }
 }
@@ -42,16 +44,17 @@ void vec_omp_convolution (const uchar *image, const float *ker, uchar *out, cons
     int ker_r = KER/2;
     int thread_num = omp_get_max_threads();
     int chunk = ceil(H / (float) thread_num);
-    #pragma omp parallel for num_threads(thread_num) shared(image, ker, out, ker_r) , schedule(static, chunk)
+    #pragma omp parallel for num_threads(thread_num) shared(image, ker, out, ker_r), schedule(static, chunk)
     for(int i = ker_r; i < W - ker_r; i++){
         for(int j = ker_r; j < H - ker_r; j++){
-
-            #pragma omp simd
+            float temp = 0;
+            #pragma omp simd 
             for(int k = 0; k < KER; k++){
                 for(int l = 0; l < KER; l++){
-                    out[i*W+j] += (uchar)image[(i-ker_r+k)*W+(j-ker_r+l)]*ker[k*KER+l];
+                    temp += image[(i-ker_r+k)*W+(j-ker_r+l)]*ker[k*KER+l];
                 }
             }
+            out[i*W+j] = (uchar)temp;
             }
         }
 }
