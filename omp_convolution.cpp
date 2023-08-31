@@ -1,5 +1,6 @@
 #include "utils.cpp"
 #include "omp.h"
+#include <memory>
 
 /*
 Naive OpenMP convolution. The outermost loop is parallelized using a simple #pragma omp parallel for directive.
@@ -78,7 +79,7 @@ void smart_omp_convolution(const uchar *image, const float *ker, uchar *out, con
         int start_row = omp_get_thread_num() * chunk;
         int end_row = (omp_get_thread_num() == thread_num - 1) ? H : start_row + chunk;
         
-        uchar *private_out = new uchar[W * chunk]();
+        std::unique_ptr<uchar[]> private_out() = std::make_unique<uchar[]>(chunk * W);
 
         for (int i = start_row; i < end_row; i++) {
             for (int j = 0; j < W; j++) {
@@ -100,7 +101,7 @@ void smart_omp_convolution(const uchar *image, const float *ker, uchar *out, con
                 }
             }  
 
-    delete[] private_out;
+    
     }
 }
 
