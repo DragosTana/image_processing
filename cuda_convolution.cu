@@ -34,11 +34,12 @@ __global__ void device_convolution(uchar *image, uchar *out, int width, int heig
         N_ds[dest_y][dest_x] = image[(src_y * width + src_x)];
     else
         N_ds[dest_y][dest_x] = 0;
-        dest = threadIdx.y * TILE_WIDTH_X + threadIdx.x + TILE_WIDTH_X * TILE_WIDTH_Y;
-        dest_y = dest / INPUT_TILE_X;
-        dest_x = dest % INPUT_TILE_X;
-        src_y = blockIdx.y * TILE_WIDTH_Y + dest_y - ker_r;
-        src_x = blockIdx.x * TILE_WIDTH_X + dest_x - ker_r;
+        
+    dest = threadIdx.y * TILE_WIDTH_X + threadIdx.x + TILE_WIDTH_X * TILE_WIDTH_Y;
+    dest_y = dest / INPUT_TILE_X;
+    dest_x = dest % INPUT_TILE_X;
+    src_y = blockIdx.y * TILE_WIDTH_Y + dest_y - ker_r;
+    src_x = blockIdx.x * TILE_WIDTH_X + dest_x - ker_r;
     if (dest_y < INPUT_TILE_Y)
     {
         if (src_y >= 0 && src_y < height && src_x >= 0 && src_x < width)

@@ -3,7 +3,7 @@
 #include <time.h>
 #include <omp.h>
 
-#define KER 3
+#define KER 5
 
 uint64_t nanos () {
     struct timespec ts;

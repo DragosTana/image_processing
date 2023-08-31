@@ -11,7 +11,7 @@
 // Compile with:
 // nvcc main.cu -I /usr/local/include/opencv4/ -L /usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lgomp -o main  -Xcompiler -fopenmp
 
-#define TEST 1
+#define TEST 0
 
 int release(int argc, const char *argv[]){
     std::string file_name = argv[1];
