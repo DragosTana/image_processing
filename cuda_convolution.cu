@@ -77,8 +77,8 @@ __global__ void dumb_device_convolution (uchar *image, uchar *out, int width, in
             }
         }
 
-
-        out[(blockIdx.y * blockDim.y + threadIdx.y) * width + blockIdx.x * blockDim.x + threadIdx.x] = image[(blockIdx.y * blockDim.y + threadIdx.y) * width + blockIdx.x * blockDim.x + threadIdx.x];
+        
+        out[(blockIdx.y * blockDim.y + threadIdx.y) * width + blockIdx.x * blockDim.x + threadIdx.x] = (uchar)accum;
     }
 }
 /*
@@ -89,22 +89,23 @@ Wrapper for device convolution
 cv::Mat cuda_convolution (const cv::Mat& image, const float kernel_h[KER*KER]) {
     
     uchar *d_input, *d_output;
-    size_t pitch;
+    //size_t pitch;
 
 
-    //cudaMalloc(&d_input, image.rows*image.cols*sizeof(uchar));
-    cudaMallocPitch(&d_input, &pitch, image.cols*sizeof(uchar), image.rows);
+    cudaMalloc(&d_input, image.rows*image.cols*sizeof(uchar));
+    //cudaMallocPitch(&d_input, &pitch, image.cols*sizeof(uchar), image.rows);
     cudaMalloc(&d_output, image.rows*image.cols*sizeof(uchar));
 
     double start = omp_get_wtime();
     cv::Mat output(image.rows, image.cols, CV_8UC1, cv::Scalar(0));
-    //cudaMemcpy(d_input, image.data, image.rows*image.cols*sizeof(uchar), cudaMemcpyHostToDevice);
-    cudaMemcpy2D(d_input, pitch, image.data, image.cols*sizeof(uchar), image.cols*sizeof(uchar), image.rows, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_input, image.data, image.rows*image.cols*sizeof(uchar), cudaMemcpyHostToDevice);
+    //cudaMemcpy2D(d_input, pitch, image.data, pitch, image.cols * sizeof(uchar), image.rows, cudaMemcpyHostToDevice);
+
     cudaMemcpyToSymbol(ker, kernel_h, KER*KER*sizeof(float));
 
     dim3 dimGrid(ceil(image.cols/(float)TILE_WIDTH_X), ceil(image.rows/(float)TILE_WIDTH_Y), 1);
     dim3 dimBlock(TILE_WIDTH_X, TILE_WIDTH_Y, 1);
-    dumb_device_convolution<<<dimGrid, dimBlock>>>(d_input, d_output, image.cols, image.rows);
+    device_convolution<<<dimGrid, dimBlock>>>(d_input, d_output, image.cols, image.rows);
     cudaDeviceSynchronize();
     
     cudaMemcpy(output.data, d_output, image.rows*image.cols*sizeof(uchar), cudaMemcpyDeviceToHost);
