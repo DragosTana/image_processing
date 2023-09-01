@@ -19,7 +19,7 @@ Cuda implementation of 2D convolution using constant memory and shared memory
 @param width: image width
 @param height: image height
 */
-__global__ void device_convolution(uchar *image, uchar *out, int width, int height) {
+__global__ void device_convolution(const uchar *image, uchar *out, const int width, const int height) {
 
     __shared__ float N_ds[INPUT_TILE_Y][INPUT_TILE_X];
     int ker_r = KER / 2;
@@ -49,15 +49,16 @@ __global__ void device_convolution(uchar *image, uchar *out, int width, int heig
     }
     __syncthreads();
 
-    float accum = 0;
+    float temp = 0;
     int y, x;
     for (y = 0; y < KER; y++)
         for (x = 0; x < KER; x++)
-            accum += (N_ds[threadIdx.y + y][threadIdx.x + x] * ker[y * KER + x]);
+            temp += (N_ds[threadIdx.y + y][threadIdx.x + x] * ker[y * KER + x]);
             y = blockIdx.y * TILE_WIDTH_Y + threadIdx.y;
             x = blockIdx.x * TILE_WIDTH_X + threadIdx.x;
     if (y < height && x < width)
-        out[(y * width + x)] = (uchar)accum;
+        //printf("%f %d\n", temp, (int)((uchar)temp));
+        out[(y * width + x)] = (uchar)temp;
 }
 
 
@@ -75,9 +76,7 @@ __global__ void dumb_device_convolution (uchar *image, uchar *out, int width, in
                     accum += image[y * width + x] * ker[i * KER + j];
                 }
             }
-        }
-
-        
+        }        
         out[(blockIdx.y * blockDim.y + threadIdx.y) * width + blockIdx.x * blockDim.x + threadIdx.x] = (uchar)accum;
     }
 }

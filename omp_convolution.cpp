@@ -17,15 +17,15 @@ void naive_omp_convolution (const uchar *image, const float *ker, uchar *out, co
     int thread_num = omp_get_max_threads();
     int chunk = ceil(H / (float) thread_num);
     #pragma omp parallel for num_threads(thread_num) shared(image, ker, out, ker_r), schedule(static, chunk)
-    for(int i = ker_r; i < W - ker_r; i++){
-        for(int j = ker_r; j < H - ker_r; j++){
+    for(int i = ker_r; i < W-ker_r; i++){
+        for(int j = ker_r; j < H-ker_r; j++){
             float temp = 0;
             for(int k = 0; k < KER; k++){
                 for(int l = 0; l < KER; l++){
-                    temp += image[(i-ker_r+k)*W+(j-ker_r+l)]*ker[k*KER+l];
+                    temp += ker[k*KER+l]*image[(j+k-ker_r)*W+(i+l-ker_r)];
                 }
             }
-            out[i*W+j] = (uchar)temp;
+            out[j*W+i] = static_cast<unsigned char>(std::min(std::max(temp, 0.0f), 255.0f));
             }
         }
 }
@@ -49,13 +49,13 @@ void vec_omp_convolution (const uchar *image, const float *ker, uchar *out, cons
     for(int i = ker_r; i < W-ker_r; i++){
         for(int j = ker_r; j < H-ker_r; j++){
             float temp = 0;
-            //#pragma omp simd 
+            #pragma omp simd 
             for(int k = 0; k < KER; k++){
                 for(int l = 0; l < KER; l++){
                     temp += ker[k*KER+l]*image[(j+k-ker_r)*W+(i+l-ker_r)];
                 }
             }
-            out[j*W+i] = temp;
+            out[j*W+i] = static_cast<unsigned char>(std::min(std::max(temp, 0.0f), 255.0f));
             }
         }
 }
@@ -114,7 +114,7 @@ Wrapper for OpenMP convolution
 cv::Mat omp_convolution (const cv::Mat &image, const float kernel_h[KER*KER]) {
     
     double start = omp_get_wtime();
-    cv::Mat out(image.rows, image.cols, CV_8UC1);
+    cv::Mat out(image.rows, image.cols, CV_8UC1, cv::Scalar(0));
     vec_omp_convolution(image.data, kernel_h, out.data, image.rows, image.cols);
     double end = omp_get_wtime();
     std::cout <<(end-start)<<std::endl;

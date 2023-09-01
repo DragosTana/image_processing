@@ -3,7 +3,7 @@
 #include <time.h>
 #include <omp.h>
 
-#define KER 5
+#define KER 3
 
 uint64_t nanos () {
     struct timespec ts;
@@ -31,3 +31,40 @@ void gaussian_kernel (float* kernel, float sigma) {
         }
     }
 }
+
+void emboss_kernel (float* kernel) {
+    kernel[0] = -2.0;
+    kernel[1] = -1.0;
+    kernel[2] = 0.0;
+    kernel[3] = -1.0;
+    kernel[4] = 1.0;
+    kernel[5] = 1.0;
+    kernel[6] = 0.0;
+    kernel[7] = 1.0;
+    kernel[8] = 2.0;
+}
+
+void sharpen_kernel(float* kernel) {
+    kernel[0] = 0.0;
+    kernel[1] = -1.0;
+    kernel[2] = 0.0;
+    kernel[3] = -1.0;
+    kernel[4] = 5.0;
+    kernel[5] = -1.0;
+    kernel[6] = 0.0;
+    kernel[7] = -1.0;
+    kernel[8] = 0.0;
+}
+
+void edge_kernel(float* kernel) {
+    kernel[0] = 0.0;
+    kernel[1] = 1.0;
+    kernel[2] = 0.0;
+    kernel[3] = 1.0;
+    kernel[4] = -4.0;
+    kernel[5] = 1.0;
+    kernel[6] = 0.0;
+    kernel[7] = 1.0;
+    kernel[8] = 0.0;
+}
+

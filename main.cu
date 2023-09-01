@@ -17,6 +17,7 @@ int release(int argc, const char *argv[]){
     std::string file_name = argv[1];
     std::string kernel = argv[2];
     std::string algorithm = argv[3];
+
     cv::Mat img = cv::imread(file_name, cv::IMREAD_GRAYSCALE);
     if (img.empty()){
         std::cout << "Could not read the image: " << file_name << std::endl;
@@ -26,10 +27,21 @@ int release(int argc, const char *argv[]){
     if (kernel == "blur") {
         gaussian_kernel(kernel_h, 1);
     }
+    else if (kernel == "sharpen") {
+        sharpen_kernel(kernel_h);
+    }
+    else if (kernel == "edge") {
+        edge_kernel(kernel_h);
+    }
+    else if (kernel == "emboss") {
+        emboss_kernel(kernel_h);
+    }
     else {
         std::cout << "Invalid kernel" << std::endl;
         return 1;
     }
+
+
     if (algorithm == "seq") {
         cv::Mat out = seq_convolution(img, kernel_h);
         cv::imshow("Original", img);

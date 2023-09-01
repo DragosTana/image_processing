@@ -17,8 +17,8 @@ void host_convolution(const uchar *image, const float  *ker, uchar *out, const i
                 for(int l = 0; l < KER; l++){
                     temp += ker[k*KER+l]*image[(j+k-ker_r)*W+(i+l-ker_r)];
                 }
-            }
-            out[j*W+i] = temp;
+            } 
+            out[j*W+i] = static_cast<unsigned char>(std::min(std::max(temp, 0.0f), 255.0f));
             }
         }
 }
@@ -35,11 +35,10 @@ void double_pixel (const uchar *image, const float  *ker, uchar *out, const int 
 
     for (int i = 0; i < H; i+=2){
         for (int j = 0; j < W; j+=2){
-            out[i*W+j] = (uchar)2*image[i*W+j];
+            out[i*W+j] = (unsigned char)2*image[i*W+j];
             
         }
     }
-
 }
 
 /*
@@ -47,11 +46,11 @@ Wrapper for host convolution
 @param M: input matrix as cv::Mat object
 @param kernel_h: kernel as float array
 */
-cv::Mat seq_convolution(const cv::Mat &M, const float kernel_h[KER*KER]){
+cv::Mat seq_convolution(const cv::Mat &image, const float kernel_h[KER*KER]){
     
     double start = omp_get_wtime();
-    cv::Mat out(M.rows, M.cols, CV_8UC1);
-    double_pixel(M.data, kernel_h, out.data, M.rows, M.cols);
+    cv::Mat out(image.rows, image.cols, CV_8UC1, cv::Scalar(0));
+    host_convolution(image.data, kernel_h, out.data, image.rows, image.cols);
     double end = omp_get_wtime();
     std::cout <<(end-start)<<std::endl;
     return out;
