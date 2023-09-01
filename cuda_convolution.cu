@@ -76,7 +76,9 @@ __global__ void dumb_device_convolution (uchar *image, uchar *out, int width, in
                 }
             }
         }
-        out[(blockIdx.y * blockDim.y + threadIdx.y) * width + blockIdx.x * blockDim.x + threadIdx.x] = (uchar)accum;
+
+
+        out[(blockIdx.y * blockDim.y + threadIdx.y) * width + blockIdx.x * blockDim.x + threadIdx.x] = image[(blockIdx.y * blockDim.y + threadIdx.y) * width + blockIdx.x * blockDim.x + threadIdx.x];
     }
 }
 /*
@@ -102,7 +104,7 @@ cv::Mat cuda_convolution (const cv::Mat& image, const float kernel_h[KER*KER]) {
 
     dim3 dimGrid(ceil(image.cols/(float)TILE_WIDTH_X), ceil(image.rows/(float)TILE_WIDTH_Y), 1);
     dim3 dimBlock(TILE_WIDTH_X, TILE_WIDTH_Y, 1);
-    device_convolution<<<dimGrid, dimBlock>>>(d_input, d_output, image.cols, image.rows);
+    dumb_device_convolution<<<dimGrid, dimBlock>>>(d_input, d_output, image.cols, image.rows);
     cudaDeviceSynchronize();
     
     cudaMemcpy(output.data, d_output, image.rows*image.cols*sizeof(uchar), cudaMemcpyDeviceToHost);
