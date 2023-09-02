@@ -18,7 +18,9 @@ int release(int argc, const char *argv[]){
     std::string kernel = argv[2];
     std::string algorithm = argv[3];
 
-    cv::Mat img = cv::imread(file_name, cv::IMREAD_GRAYSCALE);
+    std::string path = "images/" + file_name;
+    
+    cv::Mat img = cv::imread(path, cv::IMREAD_GRAYSCALE);
     if (img.empty()){
         std::cout << "Could not read the image: " << file_name << std::endl;
         return 1;
