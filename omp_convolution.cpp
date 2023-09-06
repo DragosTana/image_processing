@@ -46,8 +46,8 @@ void vec_omp_convolution (const uchar *image, const float *ker, uchar *out, cons
     int thread_num = omp_get_max_threads();
     int chunk = ceil(H / (float) thread_num);
     #pragma omp parallel for num_threads(thread_num) shared(image, ker, out, ker_r), schedule(static, chunk)
-    for(int i = ker_r; i < W-ker_r; i++){
-        for(int j = ker_r; j < H-ker_r; j++){
+    for(int i = ker_r; i < H-ker_r; i++){
+        for(int j = ker_r; j < W-ker_r; j++){
             float temp = 0;
             #pragma omp simd 
             for(int k = 0; k < KER; k++){
