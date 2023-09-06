@@ -18,7 +18,7 @@ void host_convolution(const uchar *image, const float  *ker, uchar *out, const i
                     temp += ker[k*KER+l]*image[(j+k-ker_r)*W+(i+l-ker_r)];
                 }
             } 
-            out[j*W+i] = static_cast<unsigned char>(std::min(std::max(temp, 0.0f), 255.0f)); 
+            out[j*W+i] = static_cast<uchar>(std::min(std::max(temp, 0.0f), 255.0f)); 
             }
         }
 }

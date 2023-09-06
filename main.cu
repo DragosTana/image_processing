@@ -60,6 +60,7 @@ int release(int argc, const char *argv[]){
         cv::Mat out = cuda_convolution(img, kernel_h);
         cv::imshow("Original", img);
         cv::imshow("Convolution", out);
+        
         cv::waitKey(0);
     }
     else if (algorithm == "opencv") {
