@@ -3,7 +3,7 @@
 #include<iostream>
 #include<random>
 
-#include "utils.cpp"
+#include "src/utils.cpp"
 
 #define TILE_WIDTH_X 32
 #define TILE_WIDTH_Y 16

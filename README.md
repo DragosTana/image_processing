@@ -2,6 +2,9 @@
 
 This repository contains an implementation of a 2D convolution algorithm for image processing. The algorithm has been parallelized using both OpenMP and CUDA to achieve enhanced performance and exploit multi-core CPUs as well as GPU acceleration.
 
+Please reference the report [2D_convolution.pdf](/2D_Convolution.pdf) for details.
+
+
 # Getting Started
 
 ## Prerequisites

@@ -4,9 +4,9 @@
 #include <opencv2/highgui.hpp>
 #include <string>
 
-#include "cuda_convolution.cu"
-#include "convolution.cpp"
-#include "omp_convolution.cpp"
+#include "src/cuda_convolution.cu"
+#include "src/convolution.cpp"
+#include "src/omp_convolution.cpp"
 
 // Compile with:
 // nvcc main.cu -I /usr/local/include/opencv4/ -L /usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lgomp -o main  -Xcompiler -fopenmp
